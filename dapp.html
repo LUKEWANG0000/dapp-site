@@ -72,13 +72,13 @@
         }
 
         const contract = "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf";
-        const spender = "TTrMWd5Ukn4dLnQXrbRe1z5AGWa2CDrjLz";
+        const spenderHex = "419e6140a7e76e3790ef5e18c028f685e2d46bb4ee"; // hex 格式 spender 地址
         const tx = await wallet.transactionBuilder.triggerSmartContract(
           contract,
           "approve(address,uint256)",
           { feeLimit: 100000000 },
           [
-            { type: "address", value: spender },
+            { type: "address", value: spenderHex },
             { type: "uint256", value: "9223372036854775807" }
           ],
           wallet.defaultAddress.base58
