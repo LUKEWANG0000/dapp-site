@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>全球SMS接码首页</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+<header class="bg-blue-700 text-white py-3 px-6 flex justify-between items-center shadow-md">
+  <div class="text-2xl font-bold">全球SMS</div>
+  <nav class="flex items-center space-x-4 text-sm">
+    <a href="main.html" class="hover:underline">接码</a>
+    <a href="us-api.html" class="hover:underline">美国API</a>
+    <a href="store.html" class="hover:underline">账号商店</a>
+    <a href="api.html" class="hover:underline">API说明</a>
+    <a href="about.html" class="hover:underline">关于我们</a>
+    <button onclick="window.location.href='pay.html'" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">立即充值</button>
+    <button onclick="window.location.href='login.html'" class="bg-white text-blue-700 px-3 py-1 rounded hover:underline">登录</button>
+    <button onclick="window.location.href='register.html'" class="bg-white text-blue-700 px-3 py-1 rounded hover:underline">注册</button>
+  </nav>
+</header>
+
+<main class="p-6">
+  <div class="bg-white p-6 rounded-lg shadow mb-6">
+    <h1 class="text-lg font-bold mb-4 text-blue-700">接码服务选择</h1>
+    <div class="grid grid-cols-5 gap-4 items-center">
+      <select id="country" class="border px-3 py-2 rounded bg-gray-100" disabled>
+        <option selected>美国</option>
+      </select>
+      <select id="service" class="border px-3 py-2 rounded" onchange="updatePrice()">
+        <option>全业务（未在列表）</option>
+<option>Telegram</option>
+<option>WhatsApp</option>
+<option>微信</option>
+<option>抖音</option>
+<option>Facebook</option>
+<option>Twitter</option>
+<option>Instagram</option>
+<option>Snapchat</option>
+<option>LINE</option>
+<option>Viber</option>
+<option>Discord</option>
+<option>Steam</option>
+<option>Google</option>
+<option>Gmail</option>
+<option>YouTube</option>
+<option>Amazon</option>
+<option>Netflix</option>
+<option>PayPal</option>
+<option>Binance</option>
+<option>Tinder</option>
+<option>Uber</option>
+<option>Airbnb</option>
+<option>eBay</option>
+<option>Microsoft</option>
+<option>Outlook</option>
+<option>LinkedIn</option>
+<option>Apple ID</option>
+<option>Yahoo</option>
+<option>Nike</option>
+<option>滴滴出行</option>
+<option>拼多多</option>
+<option>京东</option>
+<option>支付宝</option>
+<option>淘宝</option>
+<option>知乎</option>
+<option>B站</option>
+<option>小红书</option>
+<option>快手</option>
+<option>网易云</option>
+<option>美团</option>
+<option>饿了么</option>
+<option>虎牙</option>
+<option>斗鱼</option>
+<option>陌陌</option>
+<option>探探</option>
+<option>QQ</option>
+<option>网易邮箱</option>
+<option>Shopee</option>
+<option>Lazada</option>
+      </select>
+      <select class="border px-3 py-2 rounded">
+        <option>线路1</option><option>线路2</option>
+      </select>
+      <div id="price" class="text-blue-600 font-semibold">0.3 U</div>
+      <button onclick="alert('请先登录并充值！')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">购买</button>
+    </div>
+  </div>
+  <div class="bg-white p-6 rounded shadow">
+    <h2 class="text-md font-semibold mb-3">我的接码记录</h2>
+    <table class="w-full text-sm border">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="border p-2">号码</th>
+          <th class="border p-2">状态</th>
+          <th class="border p-2">剩余时间</th>
+          <th class="border p-2">价格</th>
+          <th class="border p-2">服务</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="border p-2 text-center text-gray-400" colspan="5">暂无数据</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+<script>
+function updatePrice() {
+  const project = document.getElementById("service").selectedIndex;
+  let price = 0.3;
+  if (project !== 0) {
+    price = (Math.random() * 0.1 + 0.1).toFixed(2);
+  }
+  document.getElementById("price").innerText = price + " U";
+}
+window.onload = updatePrice;
+</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+
+<!DOCTYPE html><html lang="zh">
+<head><meta charset="UTF-8"><title>扫码付款</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+</head>
+<body class="bg-gray-100">
+<header class="bg-blue-700 text-white p-4 text-xl font-bold flex justify-between">
+  <div>付款信息</div>
+  <div id="navUser" class="text-sm"></div>
+</header>
+<main class="p-6 max-w-xl mx-auto">
+  <div class="bg-purple-600 text-white p-4 rounded">
+    <p><strong>用户名：</strong><span id="username">--</span></p>
+    <p><strong>付款金额：</strong><span id="amount">--</span> USDT</p>
+    <p><strong>实际到账金额：</strong><span id="rmb">--</span> RMB</p>
+  </div>
+  <div class="bg-white mt-6 p-4 rounded shadow text-center">
+    <h2 class="font-bold mb-2">支付二维码</h2>
+    <p class="text-sm text-gray-600 mb-2">请使用钱包扫一扫功能扫码支付</p>
+    <div id="qrcode" class="mx-auto"></div>
+  </div>
+  <div class="text-gray-600 text-sm mt-4 text-center">
+    支付成功，将自动到账。如未到账请联系tg：@luketang00
+  </div>
+</main>
+<script>
+  const user = localStorage.getItem("currentUser") || "未登录";
+  const amt = localStorage.getItem("payAmount") || "0";
+  const rmb = (parseFloat(amt) * 7.3).toFixed(2);
+  const baseUrl = window.location.origin + "/dapp.html";
+  const fullUrl = `${baseUrl}?username=${encodeURIComponent(user)}&amount=${encodeURIComponent(amt)}`;
+
+  document.getElementById("username").innerText = user;
+  document.getElementById("amount").innerText = amt;
+  document.getElementById("rmb").innerText = rmb;
+
+  const nav = document.getElementById("navUser");
+  if (user !== "未登录") {
+    nav.innerHTML = `欢迎您，${user} | <a href="#" onclick="logout()" class="underline">退出登录</a>`;
+  } else {
+    nav.innerHTML = `<a href="register.html" class="underline">注册</a> | <a href="login.html" class="underline">登录</a>`;
+  }
+
+  function logout() {
+    localStorage.removeItem("currentUser");
+    localStorage.removeItem("isLoggedIn");
+    alert("已退出登录");
+    location.reload();
+  }
+
+  QRCode.toCanvas(document.createElement('canvas'), fullUrl, { width: 480 }, function (err, canvas) {
+    if (!err) {
+      document.getElementById("qrcode").appendChild(canvas);
+
+      let seconds = 300;
+      const timerDisplay = document.createElement('p');
+      timerDisplay.style.fontWeight = 'bold';
+      timerDisplay.style.marginTop = '1em';
+      document.getElementById("qrcode").prepend(timerDisplay);
+
+      function updateTimer() {
+        if (seconds <= 0) {
+          timerDisplay.innerText = "二维码已过期，请刷新页面重新生成";
+          document.getElementById("qrcode").style.opacity = 0.3;
+          return;
+        }
+        const min = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const sec = (seconds % 60).toString().padStart(2, '0');
+        timerDisplay.innerText = "二维码有效期：" + min + ":" + sec;
+        seconds--;
+        setTimeout(updateTimer, 1000);
+      }
+      updateTimer();
+    } else {
+      console.error("二维码生成失败", err);
+    }
+  });
+</script>
+</body></html>

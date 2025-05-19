@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>API接口说明</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+<header class="bg-blue-700 text-white py-3 px-6 flex justify-between items-center shadow-md">
+  <div class="text-2xl font-bold">全球SMS</div>
+  <nav class="flex items-center space-x-4 text-sm">
+    <a href="main.html" class="hover:underline">接码</a>
+    <a href="us-api.html" class="hover:underline">美国API</a>
+    <a href="store.html" class="hover:underline">账号商店</a>
+    <a href="api.html" class="hover:underline">API说明</a>
+    <a href="about.html" class="hover:underline">关于我们</a>
+    <button onclick="window.location.href='pay.html'" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">立即充值</button>
+    <button onclick="window.location.href='login.html'" class="bg-white text-blue-700 px-3 py-1 rounded hover:underline">登录</button>
+    <button onclick="window.location.href='register.html'" class="bg-white text-blue-700 px-3 py-1 rounded hover:underline">注册</button>
+  </nav>
+</header>
+
+<main class="p-6">
+<h1 class="text-xl font-bold text-blue-700 mb-6">API接口文档</h1>
+<div class="bg-white rounded shadow p-6 space-y-4 text-sm">
+  <div>
+    <h2 class="font-semibold">1. 获取国家列表</h2>
+    <p>GET <code>/api/countries</code></p>
+    <p>返回示例：["美国", "中国", "加拿大", "英国", "日本"]</p>
+  </div>
+  <div>
+    <h2 class="font-semibold">2. 获取项目列表</h2>
+    <p>GET <code>/api/projects</code></p>
+    <p>返回示例：["Telegram", "WhatsApp", "微信", "支付宝", "抖音"]</p>
+  </div>
+  <div>
+    <h2 class="font-semibold">3. 获取线路列表</h2>
+    <p>GET <code>/api/lines?country=美国&project=Telegram</code></p>
+    <p>返回示例：["线路1", "线路2"]</p>
+  </div>
+  <div>
+    <h2 class="font-semibold">4. 下单购买</h2>
+    <p>POST <code>/api/buy</code></p>
+    <p>参数示例：{"country": "美国", "project": "Telegram", "line": "线路1"}</p>
+  </div>
+  <div>
+    <h2 class="font-semibold">5. 获取订单状态</h2>
+    <p>GET <code>/api/order-status?id=123456</code></p>
+    <p>返回示例：{"status": "等待中", "sms": ""}</p>
+  </div>
+</div>
+</main>
+</body>
+</html>
