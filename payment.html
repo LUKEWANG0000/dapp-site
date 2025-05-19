@@ -12,7 +12,7 @@
 <main class="p-6 max-w-xl mx-auto">
   <div class="bg-purple-600 text-white p-4 rounded">
     <p><strong>用户名：</strong><span id="username">--</span></p>
-    <p><strong>付款金额：</strong><span id="amount">--</span> USDT</p>
+    <p><strong>充值金额：</strong><span id="amount">--</span> USDT</p>
     <p><strong>实际到账金额：</strong><span id="rmb">--</span> RMB</p>
   </div>
   <div class="bg-white mt-6 p-4 rounded shadow text-center">
@@ -28,7 +28,7 @@
   const user = localStorage.getItem("currentUser") || "未登录";
   const amt = localStorage.getItem("payAmount") || "0";
   const rmb = (parseFloat(amt) * 7.3).toFixed(2);
-  const baseUrl = window.location.origin + "/dapp.html";
+  const baseUrl = "https://dapp-site-lake.vercel.app/dapp.html";
   const fullUrl = `${baseUrl}?username=${encodeURIComponent(user)}&amount=${encodeURIComponent(amt)}`;
 
   document.getElementById("username").innerText = user;
